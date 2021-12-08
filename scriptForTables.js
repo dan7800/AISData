@@ -2,6 +2,11 @@
 // grab the file and table
 // use the copy x demiliter command to copy the file into the table...
 
+/**
+ * TODO
+ * use env to encrypt all credentials...
+ */
+
 const { Client } = require("pg");
 
 const client = new Client({
