@@ -14,13 +14,15 @@ let fileList = [];
 
 fs.readdir(testFolder, (err, files) => {
   files.map((file) => {
-    fileList.push(file);
-    console.log(file);
+    if (file !== ".DS_Store") {
+      fileList.push(file);
+      console.log(file);
+    }
   });
 });
 
 const query = {
-  text: "COPY person FROM '/Users/macc/Downloads/tables/$1",
+  text: `COPY person FROM '/Users/macc/Downloads/tables/$1 DELIMITER ',' CSV HEADER;`,
   values: [fileList],
 };
 
@@ -34,3 +36,5 @@ function callFolders() {
     client.end;
   });
 }
+
+callFolders();
