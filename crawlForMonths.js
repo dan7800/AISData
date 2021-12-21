@@ -22,7 +22,7 @@ async function connectDB() {
 
 const FILE_PATH = "/Users/macc/Downloads/tables/";
 
-// Scrap the links for the files on the website
+// Scrape the links for the files on the website
 async function scrapLinks() {
   try {
     const browser = await puppeteer.launch();
@@ -80,7 +80,8 @@ function getDBFromFileName(fileName) {
 
 // automaticaly download the files from links
 async function downloadFilesFromLinks(linkw) {
-  const links = linkw.slice(0, 60);
+  console.table(linkw, "links");
+  const links = linkw.slice(60, 120);
 
   function downloadFile(fileName, link) {
     return new Promise((resolve, reject) => {
@@ -121,6 +122,7 @@ async function downloadFilesFromLinks(linkw) {
   }
 }
 
+// create new table if not in existence
 async function createTableifNotInExistence(tableName) {
   try {
     await client.query(
@@ -151,6 +153,7 @@ async function createTableifNotInExistence(tableName) {
   }
 }
 
+// insert data to db
 async function insertDataToDb(filename) {
   try {
     const csvFileName = filename.replace(".zip", ".csv");
