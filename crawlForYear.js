@@ -2,15 +2,40 @@ const puppeteer = require("puppeteer");
 const http = require("https");
 const fs = require("fs");
 const extract = require("extract-zip");
-
+// const { Client } = require('ssh2');
 const { Client } = require("pg");
 
 const client = new Client({
-  host: "localhost",
-  user: "postgres",
-  port: 5432,
+  //   host: process.env.DB_HOST,
+  //   port: process.env.DB_PORT,
+  //   user: process.env.DB_USERNAME,
+  //   password: process.env.DB_PASSWORD,
+  //   database: process.env.DB_DATABASE,
 });
 
+// // define connection config for the database
+// const dbServer = {
+//   host: process.env.DB_HOST,
+//   port: process.env.DB_PORT,
+//   user: process.env.DB_USERNAME,
+//   password: process.env.DB_PASSWORD,
+//   database: process.env.DB_DATABASE,
+// };
+
+// // define connection config for the ssh tunnel
+// const tunnelConfig = {
+//   host: process.env.DB_SSH_HOST,
+//   port: 22,
+//   username: process.env.DB_SSH_USER,
+//   password: process.env.DB_SSH_PASSWORD,
+// };
+
+// const forwardConfig = {
+//   srcHost: "127.0.0.1", // any valid address
+//   srcPort: 3306, // any valid port
+//   dstHost: dbServer.host, // destination database
+//   dstPort: dbServer.port, // destination port
+// };
 // connect to database
 async function connectDB() {
   try {
