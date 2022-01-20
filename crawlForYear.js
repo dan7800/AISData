@@ -80,7 +80,7 @@ function getDBFromFileName(fileName) {
 
 // automaticaly download the files from links
 async function downloadFilesFromLinks(linkw) {
-  const links = linkw.slice(91, 152);
+  const links = linkw.slice(0, 101);
   console.log(links, "links");
 
   function downloadFile(fileName, link) {
@@ -146,6 +146,9 @@ async function createTableifNotInExistence(tableName) {
 			transceiverclass varchar(100)	
   );
 		`
+    );
+    await client.query(
+      `select create_hypertable('aisdb.ais2020', 'basedatetime');`
     );
   } catch (error) {
     console.error(error);
