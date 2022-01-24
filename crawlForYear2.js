@@ -2,26 +2,37 @@ const puppeteer = require("puppeteer");
 const http = require("https");
 const fs = require("fs");
 const extract = require("extract-zip");
-// const { Client } = require('ssh2');
+var SSH2Promise = require("ssh2-promise");
+// const { Client } = require("ssh2");
 const { Client } = require("pg");
 
-const client = new Client({
+
+
+let sshConnectionString = {
   host: "onr-01.gccis.rit.edu",
   port: 5432,
-  user: "bj8036",
+  username: "bj8036",
 
   database: "onr",
-});
+};
 
-// connect to database
-async function connectDB() {
+// Create ssh connection and tunnel the target server through it
+let sshConn = new SSH2Promise(sshConnectionString);
+(async function () {
   try {
-    await client.connect();
-    console.log("db connected");
+    await sshConn.connect();
+    await sshConn
+      .addTunnel({ remoteAddr: "onr-01.gccis.rit.edu", remotePort: 5432 })
+      .then((tunnel) => {
+        console.log(tunnel.localPort);
+        port = 5432;
+        fqdn = "onr-01.gccis.rit.edu";
+      });
+    console.log("connected");
   } catch (error) {
-    console.log("db not connected");
+    console.log(error, "err");
   }
-}
+})();
 
 const FILE_PATH = "/Users/macc/Downloads/tables/";
 
@@ -177,17 +188,17 @@ async function insertDataToDb(filename) {
 }
 
 //  run all the process
-async function doStuff() {
-  try {
-    await connectDB();
-    // const links = await scrapLinks();
-    // console.log("All links scrapped");
-    // await downloadFilesFromLinks(links);
-  } catch (err) {
-    console.error("error doing stuff");
-  }
-}
+// async function doStuff() {
+//   try {
+//     await connectDB();
+//     // const links = await scrapLinks();
+//     // console.log("All links scrapped");
+//     // await downloadFilesFromLinks(links);
+//   } catch (err) {
+//     console.error("error doing stuff");
+//   }
+// }
 
-doStuff()
-  .then(() => console.log("Process completed"))
-  .catch((err) => console.log(err));
+// doStuff()
+//   .then(() => console.log("Process completed"))
+//   .catch((err) => console.log(err));

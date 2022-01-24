@@ -2,26 +2,59 @@ const puppeteer = require("puppeteer");
 const http = require("https");
 const fs = require("fs");
 const extract = require("extract-zip");
-// const { Client } = require('ssh2');
-const { Client } = require("pg");
 
-const client = new Client({
+let Client = require("ssh2-sftp-client");
+let sftp = new Client();
+
+// const client = new Client({
+// host: "onr-01.gccis.rit.edu",
+// port: 5432,
+// user: "bj8036",
+
+// database: "onr",
+
+let pg = require("pg");
+
+let pgHost = "localhost"; // remote hostname/ip
+let pgPort = 5432;
+let proxyPort = 9090;
+let ready = false;
+
+let proxy = require("net").createServer(function (sock) {
+  if (!ready) return sock.destroy();
+  sftp.forwardOut(
+    sock.remoteAddress,
+    sock.remotePort,
+    pgHost,
+    pgPort,
+    function (err, stream) {
+      if (err) return sock.destroy();
+      sock.pipe(stream);
+      stream.pipe(sock);
+    }
+  );
+});
+proxy.listen(proxyPort, "127.0.0.1");
+
+sftp.connect({
   host: "onr-01.gccis.rit.edu",
   port: 5432,
   user: "bj8036",
 
   database: "onr",
 });
-
-// connect to database
-async function connectDB() {
-  try {
-    await client.connect();
-    console.log("db connected");
-  } catch (error) {
-    console.log("db not connected");
-  }
-}
+sftp.on("connect", function () {
+  console.log("Connection :: connect");
+});
+sftp.on("ready", function () {
+  ready = true;
+  let conString =
+    "postgres://user:password@127.0.0.1:" + proxyPort + "/postgres",
+    client = new pg.Client(conString);
+  client.connect(function (err) {
+    // ....
+  });
+});
 
 const FILE_PATH = "/Users/macc/Downloads/tables/";
 
@@ -177,17 +210,17 @@ async function insertDataToDb(filename) {
 }
 
 //  run all the process
-async function doStuff() {
-  try {
-    await connectDB();
-    // const links = await scrapLinks();
-    // console.log("All links scrapped");
-    // await downloadFilesFromLinks(links);
-  } catch (err) {
-    console.error("error doing stuff");
-  }
-}
+// async function doStuff() {
+//   try {
+//     await connectDB();
+//     // const links = await scrapLinks();
+//     // console.log("All links scrapped");
+//     // await downloadFilesFromLinks(links);
+//   } catch (err) {
+//     console.error("error doing stuff");
+//   }
+// }
 
-doStuff()
-  .then(() => console.log("Process completed"))
-  .catch((err) => console.log(err));
+// doStuff()
+//   .then(() => console.log("Process completed"))
+//   .catch((err) => console.log(err));
